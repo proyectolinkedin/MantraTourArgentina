@@ -20,7 +20,7 @@ import {
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
-  initMercadoPago(import.meta.env.VITE_PUBLICKEY, { locale: "es-AR" });
+  initMercadoPago(import.meta.env.VITE_PUBLICKEY, { locale: "es-AR", });
 
   const [preferenceId, setPreferenceId] = useState(null);
   const [userData, setUserData] = useState({
@@ -55,7 +55,7 @@ const Checkout = () => {
       localStorage.removeItem("order");
       clearCart()
     }
-  }, [clearCart, paramValue]);
+  }, [paramValue]);
 
   let total = getTotalPrice();
 
@@ -85,7 +85,7 @@ const Checkout = () => {
       const { id } = response.data;
       return id;
     } catch (error) {
-      console.log(error.response.data);
+      console.log(error);
     }
   };
 
