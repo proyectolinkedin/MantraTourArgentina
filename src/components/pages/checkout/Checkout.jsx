@@ -35,27 +35,41 @@ const Checkout = () => {
   const paramValue = queryParams.get("status"); //approved --- reject
 
   useEffect(() => {
-    // ACA ES DONDE GUARDAMOS LA ORDEN EN FIREBASE
-    // CONDICIONADO A QUE YA ESTE EL PAGO REALIZADO
-    let order = JSON.parse(localStorage.getItem("order"));
+    // Verifica si paramValue es "approved"
     if (paramValue === "approved") {
-      let ordersCollection = collection(db, "orders");
-      addDoc(ordersCollection, { ...order, date: serverTimestamp() }).then(
-        (res) => {
+      // Obtén la orden desde el almacenamiento local
+      let order = JSON.parse(localStorage.getItem("order"));
+  
+      // Crea la colección "orders" y agrega la orden
+      const ordersCollection = collection(db, "orders");
+      addDoc(ordersCollection, { ...order, date: serverTimestamp() })
+        .then((res) => {
+          // Guarda el ID de la orden creada
           setOrderId(res.id);
-        }
-      );
-
+        })
+        .catch((error) => {
+          console.error("Error al agregar la orden:", error);
+        });
+  
+      // Actualiza el stock de los productos
       order.items.forEach((element) => {
         updateDoc(doc(db, "products", element.id), {
           stock: element.stock - element.quantity,
-        });
+        })
+          .then(() => {
+            console.log("Stock actualizado para el producto:", element.id);
+          })
+          .catch((error) => {
+            console.error("Error al actualizar el stock:", error);
+          });
       });
-
+  
+      // Limpia el almacenamiento local
       localStorage.removeItem("order");
-      clearCart()
+      clearCart();
     }
   }, [paramValue]);
+  
 
   let total = getTotalPrice();
 
