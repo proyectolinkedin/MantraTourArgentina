@@ -70,7 +70,7 @@ const Checkout = () => {
     try {
       //const {title,quantity,unit_price}=newArray
       const response = await axios.post(
-        "https://back-mantra-l8ic0evq0-alans-projects-09221d8e.vercel.app/create_preference",
+        "https://back-mantra.vercel.app/create_preference",
         {
           items: newArray,
           //title,
