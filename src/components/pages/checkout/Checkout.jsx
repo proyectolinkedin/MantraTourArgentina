@@ -35,10 +35,12 @@ const Checkout = () => {
   const paramValue = queryParams.get("status"); //approved --- reject
 
   useEffect(() => {
+    // ACA ES DONDE GUARDAMOS LA ORDEN EN FIREBASE
+    // CONDICIONADO A QUE YA ESTE EL PAGO REALIZADO
     let order = JSON.parse(localStorage.getItem("order"));
     if (paramValue === "approved") {
-      let ordersCollections = collection(db, "orders");
-      addDoc(ordersCollections, { ...order, date: serverTimestamp() }).then(
+      let ordersCollection = collection(db, "orders");
+      addDoc(ordersCollection, { ...order, date: serverTimestamp() }).then(
         (res) => {
           setOrderId(res.id);
         }
@@ -53,7 +55,7 @@ const Checkout = () => {
       localStorage.removeItem("order");
       clearCart()
     }
-  }, [paramValue]);
+  }, [clearCart, paramValue]);
 
   let total = getTotalPrice();
 

@@ -15,7 +15,7 @@ const UserOrders = () => {
         const ordersCollections = collection(db, "orders")
         let ordersFiltered = query(ordersCollections, where("email", "==", user.email))
         getDocs(ordersFiltered).then(res =>{
-            const newArr = res.docChanges.map(order =>{
+            const newArr = res.docs.map(order =>{
                 return {...order.data(), id: order.id}
             })
             setMyOrders(newArr)
