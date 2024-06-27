@@ -1,11 +1,18 @@
+import Carrousel from "../../layout/navbar/Carrousel";
+import Destacados from "./destacados/Destacados";
+//import { Link } from "react-router-dom";
 
 const Home = () => {
 
 
   return (
-    <div>
-      <h1>Este es el home</h1>
-    </div>
+    
+       <div>
+  <Carrousel/>  
+  <Destacados/>
+  
+     
+  </div>
   );
 };
 
