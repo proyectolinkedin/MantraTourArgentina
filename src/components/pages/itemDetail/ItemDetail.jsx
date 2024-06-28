@@ -2,8 +2,10 @@ import { useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../../../firebaseConfig";
 import { getDoc, collection, doc } from "firebase/firestore";
-import { Button, Box, Typography, CircularProgress, Alert } from "@mui/material";
+import { Button, Box, Typography, CircularProgress, Alert, CardMedia, Grid } from "@mui/material";
 import { CartContext } from "../../../context/CartContext";
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 
 const ItemDetail = () => {
   const { id } = useParams();
@@ -13,6 +15,8 @@ const ItemDetail = () => {
   const [counter, setCounter] = useState(quantity || 1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFullText, setShowFullText] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -31,7 +35,6 @@ const ItemDetail = () => {
     fetchProduct();
   }, [id]);
 
-  //sumar
   const addOne = () => {
     if (counter < product.stock) {
       setCounter(counter + 1);
@@ -40,7 +43,6 @@ const ItemDetail = () => {
     }
   };
 
-  //restar
   const subOne = () => {
     if (counter > 1) {
       setCounter(counter - 1);
@@ -49,14 +51,20 @@ const ItemDetail = () => {
     }
   };
 
-  //agregar al carrito
   const onAdd = () => {
     let obj = {
       ...product,
       quantity: counter,
     };
-    console.log(obj);
     addToCart(obj);
+  };
+
+  const handlePrevClick = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === 0 ? product.relatedImages.length - 1 : prevIndex - 1));
+  };
+
+  const handleNextClick = () => {
+    setCurrentIndex((prevIndex) => (prevIndex === product.relatedImages.length - 1 ? 0 : prevIndex + 1));
   };
 
   if (loading) {
@@ -81,10 +89,44 @@ const ItemDetail = () => {
       {product && (
         <Box>
           <Typography variant="h5">{product.title}</Typography>
-          <img src={product.image} style={{ width: "200px" }} alt={product.title} />
-          <Typography variant="body1">{product.description}</Typography>
+          <CardMedia
+            component="img"
+            image={product.relatedImages[currentIndex]}
+            alt={product.title}
+            sx={{ width: '100%', maxHeight: '400px', objectFit: 'contain' }}
+          />
+          <Typography variant="body1">
+            {showFullText ? product.description : `${product.description.slice(0, 1000)}`}
+            {product.description.length > 1000 && (
+              <Button onClick={() => setShowFullText(!showFullText)}>
+                {showFullText ? "Leer menos" : "Leer más"}
+              </Button>
+            )}
+          </Typography>
           <Typography variant="h6">Precio: ${product.price}</Typography>
           <Typography variant="h6">Stock: {product.stock}</Typography>
+          {product.relatedImages && product.relatedImages.length > 0 && (
+            <Box sx={{ mt: 3 }}>
+              <Typography variant="h6" gutterBottom>Imágenes Relacionadas</Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <ArrowBackIosIcon onClick={handlePrevClick} sx={{ cursor: 'pointer' }} />
+                <Grid container spacing={2} sx={{ overflowX: 'auto', flexWrap: 'nowrap' }}>
+                  {product.relatedImages.map((img, index) => (
+                    <Grid item key={index} sx={{ minWidth: 120 }}>
+                      <CardMedia
+                        component="img"
+                        image={img}
+                        alt={`Related ${index}`}
+                        sx={{ width: '100%', height: 100, objectFit: 'cover', cursor: 'pointer' }}
+                        onClick={() => setCurrentIndex(index)}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+                <ArrowForwardIosIcon onClick={handleNextClick} sx={{ cursor: 'pointer' }} />
+              </Box>
+            </Box>
+          )}
         </Box>
       )}
       {quantity && (
