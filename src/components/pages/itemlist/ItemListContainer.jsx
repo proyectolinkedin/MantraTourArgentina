@@ -25,7 +25,7 @@ const ItemListContainer = () => {
     return (
         <Container>
             <Typography variant="h2" component="h1" gutterBottom>
-                Estoy en el shop
+                Destinos
             </Typography>
             <Grid container spacing={3}>
                 {products.map((product) => (

@@ -43,9 +43,7 @@ const DestinosPopulares = () => {
                 <Typography variant="h6" component="div">
                   {products.title}
                 </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {products.description}
-                </Typography>
+
               </CardContent>
             </Card>
           </Grid>

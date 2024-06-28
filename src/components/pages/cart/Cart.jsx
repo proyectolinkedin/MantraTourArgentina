@@ -1,11 +1,27 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../../context/CartContext";
 import { Link } from "react-router-dom";
 import { Box, Typography, Button, Divider } from "@mui/material";
 
 const Cart = () => {
   const { cart, clearCart, deleteById, getTotalPrice } = useContext(CartContext);
-  let total = getTotalPrice();
+  const [total, setTotal] = useState(0);
+
+  // Función para actualizar el total
+  const updateTotal = () => {
+    const totalPrice = getTotalPrice();
+    setTotal(totalPrice);
+  };
+
+  // Actualizar el total cuando el carrito cambie
+  useEffect(() => {
+    updateTotal();
+  }, [cart]); // Se ejecuta cada vez que cambia el carrito
+
+  const handleDelete = (productId) => {
+    deleteById(productId);
+    updateTotal(); // Actualiza el total después de eliminar el producto
+  };
 
   return (
     <Box sx={{ p: 3 }}>
@@ -31,7 +47,7 @@ const Cart = () => {
         <Box key={product.id} sx={{ mb: 2, border: "1px solid #ccc", padding: "10px" }}>
           <Typography variant="h6">{product.title}</Typography>
           <Typography variant="body1">Cantidad: {product.quantity}</Typography>
-          <Button variant="outlined" color="error" onClick={() => deleteById(product.id)} sx={{ mt: 1 }}>
+          <Button variant="outlined" color="error" onClick={() => handleDelete(product.id)} sx={{ mt: 1 }}>
             Eliminar
           </Button>
         </Box>
