@@ -152,7 +152,7 @@ useEffect(() => {
           <Wallet
             initialization={{
               preferenceId: preferenceId,
-              redirectMode: "self",
+              redirectMode: "modal",
             }}
           />
         ) //customization={{ texts:{ valueProp: 'smart_option'}}} />

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Box,
   Button,
@@ -12,65 +13,62 @@ import {
   Typography,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
-
 import { Link, useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useContext, useState } from "react";
-import {db, loginGoogle, onSignIn} from "../../../firebaseConfig"
+import { useContext } from "react";
+import {db, loginGoogle, onSignIn } from "../../../firebaseConfig";
 import { collection, doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 
 const Login = () => {
-  const {handleLogin}= useContext(AuthContext)
+  const { handleLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const [userCredentials, setUserCredentials] = useState({
+    email: "",
+    password: "",
+  });
 
-const [userCredentials, setUserCredentials] = useState({
-  email:"",
-  password:""
-})
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
-const handleChange = (e)=>{
-  setUserCredentials({
-    ...userCredentials, [e.target.name]: e.target.value
-  })
-}
+  const handleChange = (e) => {
+    setUserCredentials({
+      ...userCredentials,
+      [e.target.name]: e.target.value,
+    });
+  };
 
-const handleSubmit = async (e)=>{
-  e.preventDefault()
-  try {
-    const res = await onSignIn(userCredentials)
-    if (res.user) {
-      const userCollection = collection(db, "users")
-      const userRef = doc(userCollection,res.user.uid)
-      const userDoc = await getDoc(userRef)
-      let finallyUser ={
-        email: res.user.email,
-        rol: userDoc.data().rol,
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await onSignIn(userCredentials);
+      if (res.user) {
+        const userCollection = collection(db, "users");
+        const userRef = doc(userCollection, res.user.uid);
+        const userDoc = await getDoc(userRef);
+        let finallyUser = {
+          email: res.user.email,
+          rol: userDoc.data().rol,
+        };
+        handleLogin(finallyUser);
+        navigate("/");
       }
-      handleLogin(finallyUser)
-      navigate("/")
-      console.log(finallyUser);
+      navigate("/");
+    } catch (error) {
+      console.log(error);
     }
-    navigate("/")
-  } catch (error) {
-    console.log(error);
-  }
+  };
 
-}
-
-const googleSingIn = async ()=>{
-  let res = await loginGoogle()
-  let finallyUser = {
-    email: res.user.email,
-    rol:"user"
-  }
-  handleLogin(finallyUser)
-  navigate("/")
-}
-
+  const googleSingIn = async () => {
+    let res = await loginGoogle();
+    let finallyUser = {
+      email: res.user.email,
+      rol: "user",
+    };
+    handleLogin(finallyUser);
+    navigate("/");
+  };
 
   return (
     <Box
@@ -92,7 +90,12 @@ const googleSingIn = async ()=>{
           justifyContent={"center"}
         >
           <Grid item xs={10} md={12}>
-            <TextField name="email" label="Email" fullWidth onChange={handleChange}/>
+            <TextField
+              name="email"
+              label="Email"
+              fullWidth
+              onChange={handleChange}
+            />
           </Grid>
           <Grid item xs={10} md={12}>
             <FormControl variant="outlined" fullWidth>
@@ -145,7 +148,7 @@ const googleSingIn = async ()=>{
               </Button>
             </Grid>
             <Grid item xs={10} md={5}>
-              <Tooltip title="ingresa con google">
+              <Tooltip title="Ingresar con Google">
                 <Button
                   variant="contained"
                   startIcon={<GoogleIcon />}
@@ -158,7 +161,7 @@ const googleSingIn = async ()=>{
                     textShadow: "2px 2px 2px grey",
                   }}
                 >
-                  Ingresa con google
+                  Ingresar con Google
                 </Button>
               </Tooltip>
             </Grid>
@@ -169,15 +172,15 @@ const googleSingIn = async ()=>{
                 mt={1}
                 align="center"
               >
-                ¿Aun no tienes cuenta?
+                ¿Aún no tienes cuenta?
               </Typography>
             </Grid>
             <Grid item xs={10} md={5}>
-              <Tooltip title="ingresa con google">
+              <Tooltip title="Registrarse">
                 <Button
                   variant="contained"
                   fullWidth
-                  onClick={()=>navigate("/register")}
+                  onClick={() => navigate("/register")}
                   type="button"
                   sx={{
                     color: "white",
@@ -185,7 +188,7 @@ const googleSingIn = async ()=>{
                     textShadow: "2px 2px 2px grey",
                   }}
                 >
-                  Registrate
+                  Registrarse
                 </Button>
               </Tooltip>
             </Grid>
