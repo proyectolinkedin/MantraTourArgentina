@@ -1,4 +1,3 @@
-
 import { Box, Grid, Typography, Link, IconButton } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -13,17 +12,17 @@ const Footer = () => {
           <Typography variant="h6" gutterBottom>
             Enlaces Rápidos
           </Typography>
-          <Link href="/about" color="inherit" underline="hover">
-            Sobre Nosotros
-          </Link>
-          <br />
-          <Link href="/services" color="inherit" underline="hover">
-            Servicios
-          </Link>
-          <br />
-          <Link href="/contact" color="inherit" underline="hover">
-            Contacto
-          </Link>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <Link href="/about" color="inherit" underline="hover">
+              Sobre Nosotros
+            </Link>
+            <Link href="/services" color="inherit" underline="hover">
+              Servicios
+            </Link>
+            <Link href="/contact" color="inherit" underline="hover">
+              Contacto
+            </Link>
+          </Box>
         </Grid>
         {/* Sección de contacto */}
         <Grid item xs={12} sm={6} md={3}>
@@ -52,7 +51,7 @@ const Footer = () => {
           </Box>
         </Grid>
       </Grid>
-      <Box textAlign="center" pt={5}>
+      <Box textAlign="center" pt={5} mt={2}>
         <Typography variant="body2">
           © {new Date().getFullYear()} Agencia de Viajes. Todos los derechos reservados.
         </Typography>

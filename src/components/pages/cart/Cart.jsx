@@ -16,11 +16,17 @@ const Cart = () => {
   // Actualizar el total cuando el carrito cambie
   useEffect(() => {
     updateTotal();
-  }, [cart]); // Se ejecuta cada vez que cambia el carrito
+  }, [cart]);
+
+  const handleClearCart = () => {
+    clearCart();
+    setTotal(0); // Actualiza el total a 0 inmediatamente
+  };
 
   const handleDelete = (productId) => {
     deleteById(productId);
-    updateTotal(); // Actualiza el total después de eliminar el producto
+    // Espera a que se actualice el carrito antes de actualizar el total
+    setTimeout(updateTotal, 0);
   };
 
   return (
@@ -39,7 +45,7 @@ const Cart = () => {
         </Typography>
       )}
 
-      <Button variant="outlined" onClick={clearCart} sx={{ mb: 2 }}>
+      <Button variant="outlined" onClick={handleClearCart} sx={{ mb: 2 }}>
         Limpiar carrito
       </Button>
 

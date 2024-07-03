@@ -29,7 +29,7 @@ const DestinosPopulares = () => {
       <Typography variant="h4" gutterBottom>
         Destinos Populares
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container spacing={5}>
         {destinos.map((products) => (
           <Grid item xs={12} sm={6} md={4} key={products.id}>
             <Card sx={{ transition: "transform 0.3s", "&:hover": { transform: "scale(1.05)" } }}>

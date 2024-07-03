@@ -2,6 +2,7 @@ import { Box, Typography } from "@mui/material";
 import DestinosPopulares from "./DestinosPopulares";
 import OfertasEspeciales from "./OfertasEspeciales";
 import TestimoniosClientes from "./TestimoniosClientes";
+import ContactForm from "./ContactForm";
 import Footer from "./Footer";
 
 const Destacados = () => {
@@ -29,10 +30,14 @@ const Destacados = () => {
         <TestimoniosClientes />
       </Box>
       <Box>
+        <ContactForm/>
+      </Box>
+      <Box>
         <Typography variant="h5" gutterBottom textAlign="center">
           
         </Typography>
         <Footer/>
+        
       </Box>
     </Box>
   );

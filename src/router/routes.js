@@ -1,3 +1,4 @@
+import ProfileComponent from "../components/layout/Profile";
 import Cart from "../components/pages/cart/Cart";
 import Checkout from "../components/pages/checkout/Checkout";
 import Home from "../components/pages/home/Home";
@@ -35,6 +36,11 @@ export const routes = [
     id: "userOrders",
     path: "/user-orders",
     Element: UserOrders,
+  },
+  {
+    id: "profile",
+    path: "/profile",
+    Element: ProfileComponent,
   },
  
 ];
