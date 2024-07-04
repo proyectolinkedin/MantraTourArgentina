@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import {
   Box,
   Button,
@@ -11,18 +11,19 @@ import {
   TextField,
   Tooltip,
   Typography,
+  Alert,
 } from "@mui/material";
 import GoogleIcon from "@mui/icons-material/Google";
 import { Link, useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { useContext } from "react";
-import {db, loginGoogle, onSignIn } from "../../../firebaseConfig";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { db, loginGoogle, onSignIn } from "../../../firebaseConfig";
+import { doc, getDoc } from "firebase/firestore";
 import { AuthContext } from "../../../context/AuthContext";
 
 const Login = () => {
   const { handleLogin } = useContext(AuthContext);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const [userCredentials, setUserCredentials] = useState({
@@ -41,33 +42,45 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
     try {
       const res = await onSignIn(userCredentials);
       if (res.user) {
-        const userCollection = collection(db, "users");
-        const userRef = doc(userCollection, res.user.uid);
+        const userRef = doc(db, "users", res.user.uid);
         const userDoc = await getDoc(userRef);
-        let finallyUser = {
-          email: res.user.email,
-          rol: userDoc.data().rol,
-        };
-        handleLogin(finallyUser);
-        navigate("/");
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          let finallyUser = {
+            email: res.user.email,
+            rol: userData.rol,
+            ...userData,
+          };
+          handleLogin(finallyUser);
+          navigate("/");
+        } else {
+          setError("No se encontraron datos del usuario.");
+        }
       }
-      navigate("/");
     } catch (error) {
-      console.log(error);
+      console.error("Error al iniciar sesión:", error.message);
+      setError(error.message);
     }
   };
 
   const googleSingIn = async () => {
-    let res = await loginGoogle();
-    let finallyUser = {
-      email: res.user.email,
-      rol: "user",
-    };
-    handleLogin(finallyUser);
-    navigate("/");
+    try {
+      const res = await loginGoogle();
+      const finallyUser = {
+        email: res.user.email,
+        rol: "user",
+      };
+      handleLogin(finallyUser);
+      navigate("/");
+    } catch (error) {
+      console.error("Error al iniciar sesión con Google:", error.message);
+      setError(error.message);
+    }
   };
 
   return (
@@ -79,22 +92,22 @@ const Login = () => {
         justifyContent: "center",
         alignItems: "center",
         flexDirection: "column",
-        // backgroundColor: theme.palette.secondary.main,
       }}
     >
       <form onSubmit={handleSubmit}>
-        <Grid
-          container
-          rowSpacing={2}
-          // alignItems="center"
-          justifyContent={"center"}
-        >
+        <Grid container rowSpacing={2} justifyContent={"center"}>
+          {error && (
+            <Grid item xs={10} md={12}>
+              <Alert severity="error">{error}</Alert>
+            </Grid>
+          )}
           <Grid item xs={10} md={12}>
             <TextField
               name="email"
               label="Email"
               fullWidth
               onChange={handleChange}
+              value={userCredentials.email}
             />
           </Grid>
           <Grid item xs={10} md={12}>
@@ -107,6 +120,7 @@ const Login = () => {
                 onChange={handleChange}
                 id="outlined-adornment-password"
                 type={showPassword ? "text" : "password"}
+                value={userCredentials.password}
                 endAdornment={
                   <InputAdornment position="end">
                     <IconButton

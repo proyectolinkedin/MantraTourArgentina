@@ -12,26 +12,31 @@ import {
   Box,
   Stack,
 } from "@mui/material";
+import { format } from "date-fns";
+import { es } from "date-fns/locale"; // Importa la localización en español
 
 const UserOrders = () => {
   const [myOrders, setMyOrders] = useState([]);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    // Asegúrate de que user y user.email estén definidos antes de hacer la consulta
     if (user && user.email) {
       const fetchOrders = async () => {
         try {
-          const ordersCollections = collection(db, "orders");
+          const ordersCollection = collection(db, "orders");
           const ordersFiltered = query(
-            ordersCollections,
+            ordersCollection,
             where("email", "==", user.email)
           );
           const querySnapshot = await getDocs(ordersFiltered);
-          const newArr = querySnapshot.docs.map((order) => ({
-            ...order.data(),
-            id: order.id,
-          }));
+          const newArr = querySnapshot.docs.map((order) => {
+            const data = order.data();
+            return {
+              ...data,
+              id: order.id,
+              date: data.date ? data.date.toDate() : null, // Convertir Timestamp a Date
+            };
+          });
           setMyOrders(newArr);
         } catch (error) {
           console.log(error);
@@ -45,7 +50,7 @@ const UserOrders = () => {
   return (
     <Box sx={{ padding: "2rem" }}>
       <Typography variant="h4" gutterBottom>
-        Mis Órdenes
+        Mis Compras
       </Typography>
       <Grid container spacing={3}>
         {myOrders.map((order) => (
@@ -55,6 +60,11 @@ const UserOrders = () => {
                 <Typography variant="h6" gutterBottom>
                   Orden ID: {order.id}
                 </Typography>
+                {order.date && (
+                  <Typography variant="subtitle2" color="textSecondary" gutterBottom>
+                    Fecha de compra: {format(order.date, "PPPP p", { locale: es })}
+                  </Typography>
+                )}
                 <Divider />
                 {order?.items?.map((product) => (
                   <Stack

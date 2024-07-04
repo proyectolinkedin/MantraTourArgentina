@@ -1,4 +1,4 @@
-import ProfileComponent from "../components/layout/Profile";
+import ProfileComponent from "../components/layout/Profile.Component";
 import Cart from "../components/pages/cart/Cart";
 import Checkout from "../components/pages/checkout/Checkout";
 import Home from "../components/pages/home/Home";
