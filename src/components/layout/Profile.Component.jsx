@@ -127,7 +127,7 @@ const ProfileComponent = () => {
           <CardContent>
             <Grid container spacing={4} alignItems="center">
               <Grid item>
-                <Avatar sx={{ width: 64, height: 64, border: '2px solid', borderColor: 'primary.main' }} src={userProfile.avatarUrl}>
+                <Avatar sx={{ width: 64, height: 64, border: '2px solid', borderColor: '#00BF63', bgcolor:"#00BF63" }} >
                   {userProfile.firstName.charAt(0)}{userProfile.lastName.charAt(0)}
                 </Avatar>
               </Grid>

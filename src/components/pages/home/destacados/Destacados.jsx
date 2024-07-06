@@ -4,6 +4,7 @@ import OfertasEspeciales from "./OfertasEspeciales";
 import TestimoniosClientes from "./TestimoniosClientes";
 import ContactForm from "./ContactForm";
 import Footer from "./Footer";
+import Service from "./Service";
 
 const Destacados = () => {
   return (
@@ -11,6 +12,7 @@ const Destacados = () => {
       <Typography variant="h4" gutterBottom textAlign="center">
         
       </Typography>
+    <Service/>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h5" gutterBottom textAlign="center">
           

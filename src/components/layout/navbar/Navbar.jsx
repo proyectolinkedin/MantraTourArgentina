@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -25,19 +25,56 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { db } from '../../../firebaseConfig';
+import { getDocs, collection, query, where, doc, setDoc } from 'firebase/firestore';
 
 const drawerWidth = 200;
 const settings = ['Profile', 'Logout'];
 
 const Navbar = (props) => {
-  const { logOutContext, user } = useContext(AuthContext);
+  const { logOutContext, user, isLogged } = useContext(AuthContext);
   const { window } = props;
   const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   const navigate = useNavigate();
   const rolAdmin = import.meta.env.VITE_ROL_ADMIN;
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        if (user && user.email) {
+          const usersCollection = collection(db, "users");
+          const usersQuery = query(usersCollection, where("email", "==", user.email));
+          const querySnapshot = await getDocs(usersQuery);
+
+          if (!querySnapshot.empty) {
+            const userData = querySnapshot.docs[0].data();
+            const userId = querySnapshot.docs[0].id;  // Obtener el ID del documento
+            setUserProfile({ ...userData, id: userId });
+          } else {
+            // Si no se encuentra el usuario en Firestore, crear un nuevo documento
+            const userData = {
+              email: user.email,
+              firstName: user.displayName ? user.displayName.split(' ')[0] : '',
+              lastName: user.displayName ? user.displayName.split(' ').slice(1).join(' ') : '',
+              phoneNumber: ''
+            };
+            const newDocRef = await setDoc(doc(usersCollection), userData);
+            setUserProfile({ ...userData, id: newDocRef.id });
+          }
+        }
+      } catch (error) {
+        console.error('Error al obtener el perfil del usuario:', error);
+      }
+    };
+
+    if (isLogged) {
+      fetchUserProfile();
+    }
+  }, [isLogged, user]);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -109,7 +146,7 @@ const Navbar = (props) => {
             </ListItem>
           </Link>
         ))}
-        {user.rol === rolAdmin && (
+        {user && user.rol === rolAdmin && (
           <Link to={'/dashboard'} style={{ textDecoration: 'none', color: 'inherit' }}>
             <ListItem disablePadding>
               <ListItemButton>
@@ -141,21 +178,23 @@ const Navbar = (props) => {
       <AppBar position="fixed" sx={{ width: '100%' }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            {/* Logo grande para pantallas md y superiores */}
             <Box sx={{ display: { xs: 'none', md: 'flex' }, marginRight: '8px' }}>
+              <Link to="/"> 
               <img
                 src="https://firebasestorage.googleapis.com/v0/b/mantratour-37a6e.appspot.com/o/logo%20mantra.png?alt=media&token=add80bfd-737e-4d8f-a001-c0a2a43493fc"
                 alt="logo"
-                style={{ height: '24px' }}
+                style={{ height: '30px' }}
               />
+              </Link>
             </Box>
-            {/* Logo pequeño para pantallas xs */}
             <Box sx={{ display: { xs: 'flex', md: 'none' }, marginRight: '8px' }}>
+              <Link to="/">
               <img
                 src='https://firebasestorage.googleapis.com/v0/b/mantratour-37a6e.appspot.com/o/logo%20mantra.png?alt=media&token=add80bfd-737e-4d8f-a001-c0a2a43493fc'
                 alt="logo"
-                style={{ height: '24px' }}
+                style={{ height: '30px' }}
               />
+              </Link>
             </Box>
             
             <Typography
@@ -212,10 +251,10 @@ const Navbar = (props) => {
               </Menu>
             </Box>
             <Typography
-              variant="h5"
+              variant="h6"
               noWrap
               component="a"
-              href="/"
+              href=""
               sx={{
                 mr: 2,
                 display: { xs: 'flex', md: 'none' },
@@ -227,25 +266,48 @@ const Navbar = (props) => {
                 textDecoration: 'none',
               }}
             >
-              
+              Mantra
             </Typography>
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {menuItems.map(({ id, path, title }) => (
                 <Button
                   key={id}
-                  onClick={handleCloseNavMenu}
-                  sx={{ my: 2, color: 'white', display: 'block' }}
                   component={Link}
                   to={path}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
                 >
                   {title}
                 </Button>
               ))}
+              {user && user.rol === rolAdmin && (
+                <Button
+                  component={Link}
+                  to={'/dashboard'}
+                  onClick={handleCloseNavMenu}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  Dashboard
+                </Button>
+              )}
             </Box>
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="User Avatar" src={user?.avatar || '/static/images/avatar/2.jpg'} />
+                  <Avatar
+                    alt={`${userProfile?.firstName || 'U'} ${userProfile?.lastName || 'U'}`}
+                    src={userProfile?.avatarUrl}
+                    sx={{
+                      bgcolor: userProfile?.avatarUrl ? 'transparent' : '#00BF63',
+                      color: 'white',
+                      width: 64,
+                      height: 64,
+                      border:"2px solid",
+                      borderColor: "#00BF63",
+                    }}
+                  >
+                    {!userProfile?.avatarUrl && `${userProfile?.firstName?.charAt(0) || 'U'}${userProfile?.lastName?.charAt(0) || 'U'}`}
+                  </Avatar>
                 </IconButton>
               </Tooltip>
               <Menu

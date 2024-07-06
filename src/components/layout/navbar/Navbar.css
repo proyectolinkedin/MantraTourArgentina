@@ -1,4 +1,86 @@
-a{
-    text-decoration: none;
-    color: black;
-}
+/* Navbar.css */
+
+/* Estilos generales */
+.navbar-logo img {
+    height: 30px;
+    margin-right: 8px;
+  }
+  
+  .navbar-title {
+    flex-grow: 1;
+    font-family: 'monospace';
+    font-weight: 700;
+    letter-spacing: 0.3rem;
+  }
+  
+  .navbar-settings {
+    margin-left: auto;
+  }
+  
+  /* Estilos para el menú de navegación en dispositivos móviles */
+  .navbar-mobile-menu {
+    display: none;
+  }
+  
+  /* Estilos para el avatar y menú de usuario */
+  .avatar-button {
+    padding: 0;
+  }
+  
+  .avatar {
+    width: 64px;
+    height: 64px;
+    background-color: transparent;
+    border: 2px solid #00BF63;
+  }
+  
+  .avatar-text {
+    color: white;
+  }
+  
+  /* Estilos para el cajón lateral (Drawer) */
+  .drawer-list-item {
+    color: #ffffff;
+  }
+  
+  .drawer-list-item .MuiListItemIcon-root {
+    color: #ffffff;
+  }
+  
+  .drawer-list-item .MuiListItemText-primary {
+    color: #ffffff;
+  }
+  
+  .drawer-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .drawer-logout-item {
+    margin-top: auto;
+  }
+  
+  .drawer-logout-item .MuiListItemIcon-root {
+    color: #ffffff;
+  }
+  
+  .drawer-logout-item .MuiListItemText-primary {
+    color: #ffffff;
+  }
+  
+  .drawer-logout-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* Media query para estilos responsivos */
+  @media (max-width: 960px) {
+    .navbar-desktop-menu {
+      display: none;
+    }
+    
+    .navbar-mobile-menu {
+      display: flex;
+    }
+  }
+  
+  /* Estilos adicionales según necesidades específicas */
+  
