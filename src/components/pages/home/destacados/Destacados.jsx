@@ -1,10 +1,12 @@
 import { Box, Typography } from "@mui/material";
-import DestinosPopulares from "./DestinosPopulares";
+//import DestinosPopulares from "./DestinosPopulares";
 import OfertasEspeciales from "./OfertasEspeciales";
 import TestimoniosClientes from "./TestimoniosClientes";
 import ContactForm from "./ContactForm";
 import Footer from "./Footer";
 import Service from "./Service";
+import ItemListContainer from "../../itemlist/ItemListContainer";
+
 
 const Destacados = () => {
   return (
@@ -13,17 +15,18 @@ const Destacados = () => {
         
       </Typography>
     <Service/>
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 8 }}>
         <Typography variant="h5" gutterBottom textAlign="center">
           
         </Typography>
-        <DestinosPopulares />
-      </Box>
-      <Box sx={{ mb: 8 }}>
-        <Typography variant="h5" gutterBottom textAlign="center">
-          Ofertas Especiales
-        </Typography>
         <OfertasEspeciales />
+      </Box>
+      <Box sx={{ mb: 8}}>
+        <Typography variant="h5" gutterBottom textAlign="center">
+          
+        </Typography>
+        
+        <ItemListContainer />
       </Box>
       <Box>
         <Typography variant="h5" gutterBottom textAlign="center">

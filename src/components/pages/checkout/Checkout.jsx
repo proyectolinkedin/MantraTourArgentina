@@ -1,75 +1,59 @@
-import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../../context/CartContext";
-import axios from "axios";
-import { Button, TextField } from "@mui/material";
-import { AuthContext } from "../../../context/AuthContext";
-import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { db } from "../../../firebaseConfig";
-
-import {
-  addDoc,
-  collection,
-  doc,
-  updateDoc,
-  serverTimestamp,
-  //getDocs,
-} from "firebase/firestore";
+import axios from "axios";
+import { addDoc, collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
+import { AuthContext } from "../../../context/AuthContext";
+import { initMercadoPago, Wallet } from "@mercadopago/sdk-react";
+import { Box, Button, Container, TextField, Typography } from "@mui/material";
+import Swal from "sweetalert2";
 
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
-  initMercadoPago(import.meta.env.VITE_PUBLICKEY, { locale: "es-AR", });
+  const navigate = useNavigate();
+  
+  initMercadoPago(import.meta.env.VITE_PUBLICKEY, { locale: "es-AR" });
 
   const [preferenceId, setPreferenceId] = useState(null);
-  const [userData, setUserData] = useState({
-    cp: "",
-    phone: "",
-  });
-
+  const [userData, setUserData] = useState({ cp: "", phone: "" });
   const [orderId, setOrderId] = useState(null);
 
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const paramValue = queryParams.get("status"); //approved --- reject
+  const paramValue = queryParams.get("status"); // approved --- reject
 
-useEffect(() => {
-  // Verifica si paramValue es "approved"
-  if (paramValue === "approved") {
-    // Obtén la orden desde el almacenamiento local
-    let order = JSON.parse(localStorage.getItem("order"));
+  useEffect(() => {
+    if (paramValue === "approved") {
+      let order = JSON.parse(localStorage.getItem("order"));
 
-    // Crea la colección "orders" y agrega la orden
-    const ordersCollection = collection(db, "orders");
-    addDoc(ordersCollection, { ...order, date: serverTimestamp() })
-      .then((res) => {
-        // Guarda el ID de la orden creada
-        setOrderId(res.id);
-      })
-      .catch((error) => {
-        console.error("Error al agregar la orden:", error);
-      });
-
-    // Actualiza el stock de los productos
-    order.items.forEach((element) => {
-      updateDoc(doc(db, "products", element.id), {
-        stock: element.stock - element.quantity,
-      })
-        .then(() => {
-          console.log("Stock actualizado para el producto:", element.id);
+      const ordersCollection = collection(db, "orders");
+      addDoc(ordersCollection, { ...order, date: serverTimestamp() })
+        .then((res) => {
+          setOrderId(res.id);
         })
         .catch((error) => {
-          console.error("Error al actualizar el stock:", error);
+          console.error("Error al agregar la orden:", error);
         });
-    });
 
-    // Limpia el almacenamiento local
-    localStorage.removeItem("order");
-    clearCart();
-  }
-}, [paramValue]);
+      order.items.forEach((element) => {
+        updateDoc(doc(db, "products", element.id), {
+          stock: element.stock - element.quantity,
+        })
+          .then(() => {
+            console.log("Stock actualizado para el producto:", element.id);
+          })
+          .catch((error) => {
+            console.error("Error al actualizar el stock:", error);
+          });
+      });
 
+      localStorage.removeItem("order");
+      clearCart();
+      navigate("/shop");
+    }
+  }, [paramValue, navigate]);
 
   let total = getTotalPrice();
 
@@ -81,18 +65,12 @@ useEffect(() => {
         unit_price: product.unit_price,
       };
     });
-    console.log(newArray);
 
     try {
-      //const {title,quantity,unit_price}=newArray
       const response = await axios.post(
         "https://back-mantra.vercel.app/create_preference",
         {
           items: newArray,
-          //title,
-          //quantity,
-          //unit_price,
-          //shipment_cost : 10,
         }
       );
 
@@ -104,18 +82,30 @@ useEffect(() => {
   };
 
   const handleBuy = async () => {
-    let order = {
-      cp: userData.cp,
-      phone: userData.phone,
-      items: cart,
-      total: total,
-      email: user.email,
-    };
-    localStorage.setItem("order", JSON.stringify(order));
-    const id = await createPreference();
-    if (id) {
-      setPreferenceId(id);
-    }
+    Swal.fire({
+      title: '¿Estás seguro?',
+      text: "Confirmarás tu compra",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, confirmar compra'
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        let order = {
+          cp: userData.cp,
+          phone: userData.phone,
+          items: cart,
+          total: total,
+          email: user.email,
+        };
+        localStorage.setItem("order", JSON.stringify(order));
+        const id = await createPreference();
+        if (id) {
+          setPreferenceId(id);
+        }
+      }
+    });
   };
 
   const handleChange = (e) => {
@@ -123,41 +113,56 @@ useEffect(() => {
   };
 
   return (
-    <div>
-      {!orderId ? 
+    <Container maxWidth="sm" sx={{ mt: 4 }}>
+      {!orderId ? (
         <>
-          <TextField
-            name="cp"
-            variant="outlined"
-            label="codigo postal"
-            onChange={handleChange}
-          />
-          <TextField
-            name="phone"
-            variant="outlined"
-            label="telefono"
-            onChange={handleChange}
-          />
-          <Button onClick={handleBuy}>seleccione medio de pago</Button>
+          <Typography variant="h4" gutterBottom>
+            Checkout
+          </Typography>
+          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField
+              name="cp"
+              variant="outlined"
+              label="Código Postal"
+              onChange={handleChange}
+              value={userData.cp}
+            />
+            <TextField
+              name="phone"
+              variant="outlined"
+              label="Teléfono"
+              onChange={handleChange}
+              value={userData.phone}
+            />
+            <Button variant="contained" color="primary" onClick={handleBuy}>
+              Seleccione medio de pago
+            </Button>
+          </Box>
         </>
-       : <>
-       <h2>El pago se realizo con exito</h2>
-       <h3>su numero de compra es {orderId}</h3>
-       <Link to="/shop">Seguir comprando</Link>
-       </>
-        
-      }
-      {
-        preferenceId && (
+      ) : (
+        <>
+          <Typography variant="h4" gutterBottom>
+            El pago se realizó con éxito
+          </Typography>
+          <Typography variant="h6">
+            Su número de compra es {orderId}
+          </Typography>
+          <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
+            Seguir comprando
+          </Button>
+        </>
+      )}
+      {preferenceId && (
+        <Box sx={{ mt: 4 }}>
           <Wallet
             initialization={{
               preferenceId: preferenceId,
               redirectMode: "modal",
             }}
           />
-        ) //customization={{ texts:{ valueProp: 'smart_option'}}} />
-      }
-    </div>
+        </Box>
+      )}
+    </Container>
   );
 };
 

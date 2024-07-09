@@ -45,7 +45,7 @@ const RelatedHotels = ({ category }) => {
 
   return (
     <Box sx={{ mt: 3 }}>
-      <Typography variant="h6" gutterBottom>Hoteles Relacionados</Typography>
+      <Typography variant="h6" gutterBottom></Typography>
       <Grid container spacing={3}>
         {hotels.map((hotel) => (
           <Grid item xs={12} sm={6} md={4} key={hotel.id}>
