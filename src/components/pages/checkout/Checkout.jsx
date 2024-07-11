@@ -25,35 +25,40 @@ const Checkout = () => {
   const paramValue = queryParams.get("status"); // approved --- reject
 
   useEffect(() => {
+    let order = JSON.parse(localStorage.getItem("order"));
     if (paramValue === "approved") {
-      let order = JSON.parse(localStorage.getItem("order"));
+      
+    //  console.log("Order retrieved from localStorage:", order); // Debug log
 
-      const ordersCollection = collection(db, "orders");
-      addDoc(ordersCollection, { ...order, date: serverTimestamp() })
-        .then((res) => {
-          setOrderId(res.id);
-        })
-        .catch((error) => {
-          console.error("Error al agregar la orden:", error);
-        });
-
-      order.items.forEach((element) => {
-        updateDoc(doc(db, "products", element.id), {
-          stock: element.stock - element.quantity,
-        })
-          .then(() => {
-            console.log("Stock actualizado para el producto:", element.id);
+      
+        let ordersCollection = collection(db, "orders");
+        addDoc(ordersCollection, { ...order, date: serverTimestamp() })
+          .then((res) => {
+            console.log("Order added to Firestore with ID:", res.id); // Debug log
+            setOrderId(res.id);
+            order.items.forEach((element) => {
+              updateDoc(doc(db, "products", element.id), {
+                stock: element.stock - element.quantity,
+              })
+                .then(() => {
+                  console.log("Stock actualizado para el producto:", element.id);
+                })
+                .catch((error) => {
+                  console.error("Error al actualizar el stock:", error);
+                });
+            });
           })
           .catch((error) => {
-            console.error("Error al actualizar el stock:", error);
+            console.error("Error al agregar la orden:", error);
           });
-      });
 
-      localStorage.removeItem("order");
-      clearCart();
-      navigate("/shop");
+        localStorage.removeItem("order");
+        clearCart();
+      } else {
+        console.error("No order found in localStorage or order.items is missing");
+      
     }
-  }, [paramValue, navigate]);
+  }, [paramValue, navigate, clearCart]);
 
   let total = getTotalPrice();
 
@@ -63,16 +68,22 @@ const Checkout = () => {
         title: product.title,
         quantity: product.quantity,
         unit_price: product.unit_price,
+        //currency_id: "ARS"  // Asegúrate de que la moneda esté especificada correctamente
       };
     });
+
+    console.log("Items being sent to create_preference:", newArray); // Debug log
 
     try {
       const response = await axios.post(
         "https://back-mantra.vercel.app/create_preference",
+       // "http://localhost:8080/create_preference",
         {
           items: newArray,
         }
       );
+
+      console.log("Response from create_preference:", response.data); // Debug log
 
       const { id } = response.data;
       return id;
@@ -95,10 +106,17 @@ const Checkout = () => {
         let order = {
           cp: userData.cp,
           phone: userData.phone,
-          items: cart,
+          items: cart.map(item => ({
+            id: item.id,
+            title: item.title,
+            quantity: item.quantity,
+            unit_price: item.unit_price,
+            stock: item.stock
+          })),
           total: total,
           email: user.email,
         };
+        console.log("Order to be saved:", order); // Debug log
         localStorage.setItem("order", JSON.stringify(order));
         const id = await createPreference();
         if (id) {
@@ -116,9 +134,7 @@ const Checkout = () => {
     <Container maxWidth="sm" sx={{ mt: 4 }}>
       {!orderId ? (
         <>
-          <Typography variant="h4" gutterBottom>
-            Checkout
-          </Typography>
+          <Typography variant="h4" gutterBottom>Checkout</Typography>
           <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
               name="cp"
@@ -141,26 +157,22 @@ const Checkout = () => {
         </>
       ) : (
         <>
-          <Typography variant="h4" gutterBottom>
-            El pago se realizó con éxito
-          </Typography>
-          <Typography variant="h6">
-            Su número de compra es {orderId}
-          </Typography>
+          <Typography variant="h4" gutterBottom>El pago se realizó con éxito</Typography>
+          <Typography variant="h6">Su número de compra es {orderId}</Typography>
           <Button component={Link} to="/shop" variant="contained" sx={{ mt: 2 }}>
             Seguir comprando
           </Button>
         </>
       )}
       {preferenceId && (
-        <Box sx={{ mt: 4 }}>
+        
           <Wallet
             initialization={{
               preferenceId: preferenceId,
-              redirectMode: "modal",
+              redirectMode: "self",
             }}
           />
-        </Box>
+        
       )}
     </Container>
   );

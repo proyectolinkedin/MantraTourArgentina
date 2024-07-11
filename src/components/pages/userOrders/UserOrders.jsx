@@ -38,6 +38,10 @@ const UserOrders = () => {
               date: data.date ? data.date.toDate() : null,
             };
           });
+          
+          // Ordenar las órdenes por fecha
+          newArr.sort((a, b) => b.date - a.date);
+
           setMyOrders(newArr);
         } catch (error) {
           console.log(error);

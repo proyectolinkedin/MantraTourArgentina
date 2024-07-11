@@ -2,57 +2,64 @@ import { Box, Grid, Typography, Link, IconButton } from "@mui/material";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import "./Footer.css"; // Importa el archivo CSS de estilos
 
 const Footer = () => {
   return (
-    <Box sx={{ backgroundColor: "#3f51b5", color: "white", py: 6 }}>
+    <Box className="footer-container">
       <Grid container spacing={4} justifyContent="center">
         {/* Sección de enlaces rápidos */}
         <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" className="footer-title">
             Enlaces Rápidos
           </Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Link href="/about" color="inherit" underline="hover">
+          <Box className="footer-section">
+            <Link href="/about" className="footer-link">
               Sobre Nosotros
             </Link>
-            <Link href="/services" color="inherit" underline="hover">
+            <Link href="/services" className="footer-link">
               Servicios
             </Link>
-            <Link href="/contact" color="inherit" underline="hover">
+            <Link href="/contact" className="footer-link">
               Contacto
             </Link>
           </Box>
         </Grid>
         {/* Sección de contacto */}
         <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" className="footer-title">
             Contacto
           </Typography>
-          <Typography variant="body2">Email: info@agenciaviajes.com</Typography>
-          <Typography variant="body2">Teléfono: +123 456 7890</Typography>
-          <Typography variant="body2">Dirección: Calle Ejemplo 123, Ciudad</Typography>
+          <Typography variant="body2" className="footer-section footer-contact">
+            Email: mantratourargentina@gmail.com
+          </Typography>
+          <Typography variant="body2" className="footer-section footer-contact">
+            Teléfono: +54 9 11 3819 0372
+          </Typography>
+          <Typography variant="body2" className="footer-section footer-contact">
+            Dirección: Shopping Los Nogales ,Tristán Suárez
+          </Typography>
         </Grid>
         {/* Sección de redes sociales */}
         <Grid item xs={12} sm={6} md={3}>
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" className="footer-title">
             Síguenos
           </Typography>
-          <Box>
-            <IconButton href="https://www.facebook.com" target="_blank" color="inherit">
+          <Box className="footer-section footer-social">
+            <IconButton href="https://www.facebook.com/mantratourargentina" target="_blank" className="footer-social-icon">
               <FacebookIcon />
             </IconButton>
-            <IconButton href="https://www.twitter.com" target="_blank" color="inherit">
+            <IconButton href="https://www.twitter.com" target="_blank" className="footer-social-icon">
               <TwitterIcon />
             </IconButton>
-            <IconButton href="https://www.instagram.com" target="_blank" color="inherit">
+            <IconButton href="https://www.instagram.com/mantra.tour" target="_blank" className="footer-social-icon">
               <InstagramIcon />
             </IconButton>
           </Box>
         </Grid>
       </Grid>
       <Box textAlign="center" pt={5} mt={2}>
-        <Typography variant="body2">
+        <Typography variant="body2" className="footer-copyright">
           © {new Date().getFullYear()} Agencia de Viajes. Todos los derechos reservados.
         </Typography>
       </Box>

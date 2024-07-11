@@ -1,0 +1,61 @@
+/* Estilos para el footer */
+.footer-container {
+    background-color: #3f51b5;
+    color: white;
+    padding: 20px 0;
+  }
+  
+  .footer-section {
+    margin-bottom: 20px;
+  }
+  
+  .footer-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .footer-link {
+    display: block; /* Asegura que los enlaces ocupen todo el ancho y se muestren uno debajo del otro */
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-link:hover {
+    color: #90caf9; /* Cambia el color al pasar el mouse */
+  }
+  
+  .footer-contact {
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+  }
+  
+  .footer-social {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .footer-social-icon {
+    color: white;
+    transition: color 0.3s ease;
+  }
+  
+  .footer-social-icon:hover {
+    color: #90caf9; /* Cambia el color al pasar el mouse */
+  }
+  
+  .footer-copyright {
+    font-size: 0.8rem;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 600px) {
+    .footer-section {
+      text-align: center;
+    }
+  
+    .footer-social {
+      justify-content: center;
+    }
+  }
+  
