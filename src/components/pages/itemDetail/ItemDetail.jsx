@@ -117,14 +117,14 @@ const ItemDetail = () => {
       )}
 
       {product && (
-        <Box sx={{ mt: 8 }}>
+        <Box sx={{ mt: 8, textAlign:"center", p:"2" }}>
           <Divider sx={{ mb: 2 }} />
           <Typography variant="h5" gutterBottom>Hoteles Relacionados</Typography>
           <RelatedHotels category={product.category} />
         </Box>
       )}
       {product && (
-        <Box sx={{ mt: 8 }}>
+        <Box sx={{ mt: 8,textAlign:"center", p:"2" }}>
           <Divider sx={{ mb: 2 }} />
           <Typography variant="h5" gutterBottom>Excursiones Relacionadas</Typography>
           <ExcursionRelated category={product.category} />

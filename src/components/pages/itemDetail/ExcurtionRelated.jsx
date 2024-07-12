@@ -51,7 +51,7 @@ const ExcursionRelated = ({ category }) => {
 
   return (
     <Box sx={{ mt: 3 }}>
-      <Typography variant="h6" gutterBottom>Excursiones Relacionadas</Typography>
+      <Typography variant="h6" gutterBottom></Typography>
       <Grid container spacing={3}>
         {excursions.map((excursion) => (
           <Grid item xs={12} sm={6} md={4} key={excursion.id}>
