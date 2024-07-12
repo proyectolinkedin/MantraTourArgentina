@@ -84,7 +84,7 @@ const UserOrders = () => {
                     />
                     <Box className="product-info">
                       <Typography className="product-title" variant="body1">
-                        {product.title}
+                        {order.id}
                       </Typography>
                       <Typography className="product-quantity" variant="body2">
                         Cantidad: {product.quantity}

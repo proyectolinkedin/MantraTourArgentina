@@ -25,70 +25,60 @@ const Checkout = () => {
   const paramValue = queryParams.get("status"); // approved --- reject
 
   useEffect(() => {
-    let order = JSON.parse(localStorage.getItem("order"));
-    if (paramValue === "approved") {
-      
-    //  console.log("Order retrieved from localStorage:", order); // Debug log
-
-      
-        let ordersCollection = collection(db, "orders");
-        addDoc(ordersCollection, { ...order, date: serverTimestamp() })
-          .then((res) => {
-            console.log("Order added to Firestore with ID:", res.id); // Debug log
-            setOrderId(res.id);
-            order.items.forEach((element) => {
-              updateDoc(doc(db, "products", element.id), {
-                stock: element.stock - element.quantity,
-              })
-                .then(() => {
-                  console.log("Stock actualizado para el producto:", element.id);
-                })
-                .catch((error) => {
-                  console.error("Error al actualizar el stock:", error);
-                });
+    const processOrder = async () => {
+      const order = JSON.parse(localStorage.getItem("order"));
+      if (paramValue === "approved" && order && order.items) {
+        try {
+          const ordersCollection = collection(db, "orders");
+          const res = await addDoc(ordersCollection, { ...order, date: serverTimestamp() });
+          console.log("Order added to Firestore with ID:", res.id);
+          setOrderId(res.id);
+          
+          for (const element of order.items) {
+            await updateDoc(doc(db, "products", element.id), {
+              stock: element.stock - element.quantity,
             });
-          })
-          .catch((error) => {
-            console.error("Error al agregar la orden:", error);
-          });
+            console.log("Stock actualizado para el producto:", element.id);
+          }
 
-        localStorage.removeItem("order");
-        clearCart();
+          localStorage.removeItem("order");
+          clearCart();
+          navigate("/order-success", { state: { orderId: res.id } }); // Redirigir después de procesar la orden
+        } catch (error) {
+          console.error("Error al procesar la orden:", error);
+        }
       } else {
         console.error("No order found in localStorage or order.items is missing");
-      
-    }
-  }, [paramValue, navigate, clearCart]);
+      }
+    };
 
-  let total = getTotalPrice();
+    processOrder();
+  }, [paramValue, clearCart, navigate]);
+
+  const total = getTotalPrice();
 
   const createPreference = async () => {
-    const newArray = cart.map((product) => {
-      return {
-        title: product.title,
-        quantity: product.quantity,
-        unit_price: product.unit_price,
-        //currency_id: "ARS"  // Asegúrate de que la moneda esté especificada correctamente
-      };
-    });
-
-    console.log("Items being sent to create_preference:", newArray); // Debug log
+    const items = cart.map((product) => ({
+      title: product.title,
+      quantity: product.quantity,
+      unit_price: product.unit_price,
+    }));
 
     try {
       const response = await axios.post(
         "https://back-mantra.vercel.app/create_preference",
-       // "http://localhost:8080/create_preference",
-        {
-          items: newArray,
-        }
+        { items }
       );
-
-      console.log("Response from create_preference:", response.data); // Debug log
 
       const { id } = response.data;
       return id;
     } catch (error) {
-      console.log(error);
+      console.error("Error al crear la preferencia:", error);
+      Swal.fire({
+        title: "Error",
+        text: "Hubo un error al crear la preferencia de pago",
+        icon: "error",
+      });
     }
   };
 
@@ -103,7 +93,7 @@ const Checkout = () => {
       confirmButtonText: 'Sí, confirmar compra'
     }).then(async (result) => {
       if (result.isConfirmed) {
-        let order = {
+        const order = {
           cp: userData.cp,
           phone: userData.phone,
           items: cart.map(item => ({
@@ -113,10 +103,9 @@ const Checkout = () => {
             unit_price: item.unit_price,
             stock: item.stock
           })),
-          total: total,
+          total,
           email: user.email,
         };
-        console.log("Order to be saved:", order); // Debug log
         localStorage.setItem("order", JSON.stringify(order));
         const id = await createPreference();
         if (id) {
@@ -165,14 +154,12 @@ const Checkout = () => {
         </>
       )}
       {preferenceId && (
-        
-          <Wallet
-            initialization={{
-              preferenceId: preferenceId,
-              redirectMode: "self",
-            }}
-          />
-        
+        <Wallet
+          initialization={{
+            preferenceId: preferenceId,
+            redirectMode: "self",
+          }}
+        />
       )}
     </Container>
   );
