@@ -1,6 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { CartContext } from "../../../context/CartContext";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { db } from "../../../firebaseConfig";
 import axios from "axios";
 import { addDoc, collection, doc, updateDoc, serverTimestamp } from "firebase/firestore";
@@ -12,7 +12,6 @@ import Swal from "sweetalert2";
 const Checkout = () => {
   const { cart, getTotalPrice, clearCart } = useContext(CartContext);
   const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
   
   initMercadoPago(import.meta.env.VITE_PUBLICKEY, { locale: "es-AR" });
 
@@ -43,7 +42,6 @@ const Checkout = () => {
 
           localStorage.removeItem("order");
           clearCart();
-          navigate("/order-success", { state: { orderId: res.id } }); // Redirigir después de procesar la orden
         } catch (error) {
           console.error("Error al procesar la orden:", error);
         }
@@ -52,8 +50,10 @@ const Checkout = () => {
       }
     };
 
-    processOrder();
-  }, [paramValue, clearCart, navigate]);
+    if (paramValue === "approved") {
+      processOrder();
+    }
+  }, [paramValue, clearCart]);
 
   const total = getTotalPrice();
 
